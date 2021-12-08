@@ -1,11 +1,8 @@
 # python3.6
 import random
 from paho.mqtt import client as mqtt_client
+from cuppy.settings import MQTT_PORT, MQTT_BROKER_URL, MQTT_TOPICS
 
-
-broker = "mqtt.eclipseprojects.io"
-port = 1883
-topics = ["cuppy/sensor/temp", "cuppy/sensor/moisture", "cuppy/sensor/lux"]
 # generate client ID with pub prefix randomly
 client_id = f"python-mqtt-{random.randint(0, 100)}"
 
@@ -19,23 +16,30 @@ def connect_mqtt() -> mqtt_client:
 
     client = mqtt_client.Client(client_id)
     client.on_connect = on_connect
-    client.connect(broker, port)
+    client.connect_async(MQTT_BROKER_URL, MQTT_PORT)
     return client
 
 
 def subscribe(client: mqtt_client):
     def on_message(client, userdata, msg):
         print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
+        # TODO: Update models here.
 
-    for topic in topics:
+    for topic in MQTT_TOPICS:
         client.subscribe(topic)
+
     client.on_message = on_message
 
 
 def run():
-    client = connect_mqtt()
-    subscribe(client)
-    client.loop_forever()
+    try:
+        client = connect_mqtt()
+        subscribe(client)
+        client.loop_start()
+    except KeyboardInterrupt:
+        client.loop_stop()
+        client.disconnect()
+
 
 
 if __name__ == "__main__":

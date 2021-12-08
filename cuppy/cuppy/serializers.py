@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User, Group
-from .models import Requirement, Plant
+from .models import Requirement, Plant, MQTTCentralClient, MQTTSensorActuatorClient
 from rest_framework import serializers
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -22,3 +22,13 @@ class PlantSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Plant
         fields = ['url', 'current_humidity', 'current_lux', 'current_temperature', 'plant_species', 'owner_group']
+
+class MQTTCentralClientSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = MQTTCentralClient
+        fields = ['url', 'client_id', 'unit_token', 'plant']
+
+class MQTTSensorActuatorClientSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = MQTTSensorActuatorClient
+        fields = ['url', 'client_id', 'is_actuator', 'value_file', 'topic', 'plant', 'central_client']

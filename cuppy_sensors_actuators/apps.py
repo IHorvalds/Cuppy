@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class CuppyConfig(AppConfig):
+class CuppySensorsActuatorsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'cuppy'
+    name = 'cuppy_sensors_actuators'
