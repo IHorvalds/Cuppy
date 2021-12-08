@@ -2,3 +2,5 @@ django
 markdown
 djangorestframework
 django-filter
+paho-mqtt
+django-background-tasks

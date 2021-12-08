@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,6 +33,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'cuppy.cuppy.apps.CuppyConfig',
+    'cuppy_sensors_actuators.apps.CuppySensorsActuatorsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,7 +41,18 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'background_task',
 ]
+
+## MQTT Settings
+MQTT_BROKER_URL = "mqtt.eclipseprojects.io"
+MQTT_PORT = 1883
+MQTT_TOPICS = ["cuppy/sensor/temp", "cuppy/sensor/moisture", "cuppy/sensor/lux"] # Not used.
+MQTT_DEBUG_PRINTS = False
+
+MAX_ATTEMPTS = 10
+BACKGROUND_TASK_RUN_ASYNC = True
+BACKGROUND_TASK_ASYNC_THREADS = 16
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

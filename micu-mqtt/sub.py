@@ -2,6 +2,7 @@
 import random
 import time
 from paho.mqtt import client as mqtt_client
+from cuppy.settings import MQTT_PORT, MQTT_BROKER_URL, MQTT_TOPICS
 
 
 broker = "mqtt.eclipseprojects.io"
@@ -37,7 +38,7 @@ def connect_mqtt() -> mqtt_client:
 
     client = mqtt_client.Client(client_id)
     client.on_connect = on_connect
-    client.connect(broker, port)
+    client.connect_async(MQTT_BROKER_URL, MQTT_PORT)
     return client
 
 
@@ -56,8 +57,9 @@ def subscribe(client: mqtt_client):
         elif msg.topic == "cuppy/sensor/temp":
             curr_temp = float(info)
 
-    for topic in topics:
+    for topic in MQTT_TOPICS:
         client.subscribe(topic)
+
     client.on_message = on_message
 
 

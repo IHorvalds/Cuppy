@@ -1,10 +1,17 @@
 from django.contrib.auth.models import User, Group
-from django.db.models import query
-from rest_framework.decorators import permission_classes
-from .models import Requirement, Plant
-from rest_framework import viewsets, permissions
-from cuppy.cuppy.serializers import UserSerializer, GroupSerializer, RequirementSerializer, PlantSerializer
+from rest_framework.decorators import authentication_classes, permission_classes
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from cuppy_sensors_actuators.actuators.Actuators import start_all_actuators
 
+from cuppy_sensors_actuators.sensors.Sensors import start_all_sensors, stop_all_sensors
+from cuppy_sensors_actuators.actuators.Actuators import start_all_actuators, stop_all_actuators
+from .models import Requirement, Plant, MQTTSensorActuatorClient, MQTTCentralClient
+from rest_framework import viewsets, permissions, authentication
+from cuppy.cuppy.serializers import UserSerializer, GroupSerializer, RequirementSerializer, \
+                                    PlantSerializer, MQTTCentralClientSerializer, MQTTSensorActuatorClientSerializer
+
+from .mqtt_subscriber.Subscriber import start_subscriber, stop_subscriber
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -37,3 +44,71 @@ class PlantViewSet(viewsets.ModelViewSet):
     queryset = Plant.objects.all()
     serializer_class = PlantSerializer
     permission_classes = [permissions.IsAuthenticated] ## TODO: only is authernticated user belongs to owners group
+
+class SensorActuatorViewSet(viewsets.ModelViewSet):
+    """
+    \... and with sensors and actuators
+    """
+    queryset = MQTTSensorActuatorClient.objects.all()
+    serializer_class = MQTTSensorActuatorClientSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class CentralClientViewSet(viewsets.ModelViewSet):
+    """
+
+    \... and finally with the central MQTT client.
+    """
+    queryset = MQTTCentralClient.objects.all()
+    serializer_class = MQTTCentralClientSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class StartStopSensors(APIView):
+    """Start and Stop Sensors
+
+    Initialize and start the sensors. This will connect them to the MQTT broker.
+    OR
+    Stop the sensors. Disconnect them from the MQTT broker.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        if request.query_params['method'].lower() == 'start':
+            start_all_sensors()
+            return Response(status=200)
+        if request.query_params['method'].lower() == 'stop':
+            stop_all_sensors()
+            return Response(status=200)
+        
+        return Response(status=500, data={'error': 'Issue with sensors. Please review class StartStopSensors!'})
+
+class StartStopCentralSubscriber(APIView):
+    """Start and stop the central subscriber.
+
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        if request.query_params['method'].lower() == 'start':
+            start_subscriber()
+            return Response(status=200)
+        if request.query_params['method'].lower() == 'stop':
+            stop_subscriber()
+            return Response(status=200)
+        
+        return Response(status=500, data={'error': 'Issue with application. Please review views.py > class StartStopCentralSubscriber!'})
+
+class StartStopActuators(APIView):
+    """
+    Start stop the actuators
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        if request.query_params['method'].lower() == 'start':
+            start_all_actuators()
+            return Response(status=200)
+        if request.query_params['method'].lower() == 'stop':
+            stop_all_actuators()
+            return Response(status=200)
+        
+        return Response(status=500, data={'error': 'Issue with application. Please review views.py > class StartStopActuators!'})
