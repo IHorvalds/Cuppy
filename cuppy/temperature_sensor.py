@@ -34,7 +34,8 @@ def publish(client):
     while True:
         time.sleep(2)
         current_temperature = round(
-            current_temperature + random.uniform(-max_variance, max_variance), 1
+            current_temperature +
+            random.uniform(-max_variance, max_variance), 1
         )
 
         result = client.publish(topic, current_temperature)
