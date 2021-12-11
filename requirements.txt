@@ -4,3 +4,4 @@ djangorestframework
 django-filter
 paho-mqtt
 django-background-tasks
+django-rest-swagger
