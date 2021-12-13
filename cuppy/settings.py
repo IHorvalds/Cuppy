@@ -40,8 +40,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "drf_yasg",
     "rest_framework",
-    "rest_framework_swagger",
     "background_task",
 ]
 
@@ -156,5 +156,7 @@ REST_FRAMEWORK = {
     ],
 }
 
-LOGIN_URL = "rest_framework:login"
-LOGOUT_URL = "rest_framework:logout"
+SWAGGER_SETTINGS = {
+    "LOGIN_URL": "rest_framework:login",
+    "LOGOUT_URL": "rest_framework:logout",
+}
