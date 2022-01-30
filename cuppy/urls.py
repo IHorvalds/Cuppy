@@ -18,6 +18,7 @@ from django.urls import path, re_path, include
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from rest_framework.authtoken import views as token_views
 from cuppy.cuppy import views
 
 
@@ -49,6 +50,7 @@ urlpatterns = [
         "central_control/", views.StartStopCentralSubscriber.as_view(), name="central"
     ),
     path("actuator_control/", views.StartStopActuators.as_view(), name="actuator"),
+    path('api-token-auth/', token_views.obtain_auth_token),
     path("", include(router.urls)),
     re_path(
         r"^swagger(?P<format>\.json|\.yaml)$",

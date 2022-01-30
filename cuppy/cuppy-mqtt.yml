@@ -1,0 +1,161 @@
+asyncapi: '2.2.0'
+info:
+  title: Cuppy MQTT API
+  version: '1.0.0'
+  description: |
+    The Cuppy MQTT API allows you to remotely monitor your plant's sensors.
+
+    ### Check out its awesome features:
+
+    * Receive real-time information about environmental conditions 📈
+    * Get notified whenever an alert occurs 🚨.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+
+servers:
+  dev:
+    url: test.mosquitto.org:{port}
+    protocol: mqtt
+    description: Test broker
+    variables:
+      port:
+        description: Secure connection (TLS) is available through port 8883.
+        default: '1883'
+        enum:
+          - '1883'
+          - '8883'
+
+defaultContentType: text/plain
+
+channels:
+  cuppy/sensor/lux:
+    description: The topic on which measured lux values may be produced and consumed.
+    publish:
+      summary: Inform about environmental lighting conditions of the plant.
+      operationId: sendLuxMeasurement
+      message:
+        $ref: '#/components/messages/luxMeasured'
+    subscribe:
+      summary: Consume information about environmental lighting conditions of the plant.
+      operationId: receiveLuxMeasurement
+      message:
+        $ref: '#/components/messages/luxMeasured'
+  cuppy/alert/lux:
+    description: The topic on which alerts for lux measurements may be produced and consumed.
+    publish:
+      summary: Inform about lux values outside the specified range for the plant.
+      operationId: sendLuxAlert
+      message:
+        $ref: '#/components/messages/alert'
+    subscribe:
+      summary: Consume information about lux values outside the specified range for the plant.
+      operationId: receiveLuxAlert
+      message:
+        $ref: '#/components/messages/alert'
+
+  cuppy/sensor/moisture:
+    description: The topic on which measured moisture values may be produced and consumed.
+    publish:
+      summary: Inform about environmental moisture conditions of the plant.
+      operationId: sendMoistureMeasurement
+      message:
+        $ref: '#/components/messages/moistureMeasured'
+    subscribe:
+      summary: Consume information about environmental moisture conditions of the plant.
+      operationId: receiveMoistureMeasurement
+      message:
+        $ref: '#/components/messages/moistureMeasured'
+  cuppy/alert/moisture:
+    description: The topic on which alerts for moisture measurements may be produced and consumed.
+    publish:
+      summary: Inform about moisture values outside the specified range for the plant.
+      operationId: sendMoistureAlert
+      message:
+        $ref: '#/components/messages/alert'
+    subscribe:
+      summary: Consume information about moisture values outside the specified range for the plant.
+      operationId: receiveMoistureAlert
+      message:
+        $ref: '#/components/messages/alert'
+
+  cuppy/sensor/temp:
+    description: The topic on which measured temperature values may be produced and consumed.
+    publish:
+      summary: Inform about environmental temperature conditions of the plant.
+      operationId: sendTempMeasurement
+      message:
+        $ref: '#/components/messages/tempMeasured'
+    subscribe:
+      summary: Consume information about environmental temperature conditions of the plant.
+      operationId: receiveTempMeasurement
+      message:
+        $ref: '#/components/messages/tempMeasured'
+  cuppy/alert/temp:
+    description: The topic on which alerts for temperature measurements may be produced and consumed.
+    publish:
+      summary: Inform about temperature values outside the specified range for the plant.
+      operationId: sendTempAlert
+      message:
+        $ref: '#/components/messages/alert'
+    subscribe:
+      summary: Consume information about temperature values outside the specified range for the plant.
+      operationId: receiveTempAlert
+      message:
+        $ref: '#/components/messages/alert'
+
+components:
+  messages:
+    luxMeasured:
+      name: luxMeasured
+      title: Lux measured
+      summary: Inform about environmental lighting conditions of the plant.
+      contentType: text/plain
+      payload:
+        $ref: "#/components/schemas/luxMeasuredPayload"
+    
+    moistureMeasured:
+      name: moistureMeasured
+      title: Moisture measured
+      summary: Inform about environmental moisture conditions of the plant.
+      contentType: text/plain
+      payload:
+        $ref: "#/components/schemas/moistureMeasuredPayload"
+
+    tempMeasured:
+      name: tempMeasured
+      title: Temperature measured
+      summary: Inform about environmental temperature conditions of the plant.
+      contentType: text/plain
+      payload:
+        $ref: "#/components/schemas/tempMeasuredPayload"
+
+    alert:
+      name: environmentAlert
+      title: Environment Alert
+      summary: The measured value which was outside the specified range.
+      contentType: text/plain
+      payload:
+        $ref: "#/components/schemas/alert"
+
+
+  schemas:
+    luxMeasuredPayload:
+      type: string
+      examples: ["100"]
+      description: Light intensity measured in lumens.
+    
+    moistureMeasuredPayload:
+      type: string
+      examples: ["250"]
+      description: Milliliters of water per kg of substance.
+    
+    tempMeasuredPayload:
+      type: string
+      examples: ["27"]
+      description: Temperature of the air measured in degrees Celsius.
+
+    alert:
+      type: string
+      examples: ["10000"]
+      description: The measured value which was outside the specified range.
