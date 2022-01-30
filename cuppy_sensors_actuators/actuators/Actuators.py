@@ -80,44 +80,41 @@ class MQTTActuator:
             except:
                 return # weird value in the sensor file???
 
-            if msg.topic == "cuppy/sensor/lux":
-                thresh = 100
-                required_value  = self.requirements.average_lux_amount_per_day
-                if max(0, required_value - thresh) > new_val: # > required_value + thresh:
-                    with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators/sensors/" + self.sensor_file), 'w') as f:
-                        f.write(str(new_val + 2.0))
-                if required_value + thresh < new_val: # > required_value + thresh:
-                    with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators/sensors/" + self.sensor_file), 'w') as f:
-                        f.write(str(new_val - 2.0))
-            elif msg.topic == "cuppy/sensor/moisture":
-                min_level  = self.requirements.min_humidity_level
-                max_level = self.requirements.max_humidity_level
-                if min_level > new_val:
-                    with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators/sensors/" + self.sensor_file), 'w') as f:
-                        f.write(str(new_val + 2.0))
-                if  max_level < new_val:
-                    with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators/sensors/" + self.sensor_file), 'w') as f:
-                        f.write(str(new_val - 2.0))
-            elif msg.topic == "cuppy/sensor/temp":
-                required_temperature  = self.requirements.target_temperature
-                thresh = 1.5 # Celsius
-                print(required_temperature, thresh, new_val)
-                print("asdhagsbdhabskjhbaskjhbajkshbaksjhbasdjkhbaskdhbasdkjhbasdkjhbasdkjhbasdkjhbasd")
-                if required_temperature - thresh > new_val:
-                    with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators/sensors/" + self.sensor_file), 'w') as f:
-                        f.write(str(new_val + 2.0))
-                if required_temperature + thresh < new_val:
-                    with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators/sensors/" + self.sensor_file), 'w') as f:
-                        f.write(str(new_val - 2.0))
-
-            
-
+            msg_client.write_value(msg, new_val)
 
         self.mqtt_client.mqtt_client.subscribe(self.mqtt_client.topic)
 
         self.mqtt_client.mqtt_client.on_message = on_message
         
-
+    
+    def write_value(self,msg_client, msg, new_val):
+        if msg.topic == "cuppy/sensor/lux":
+            thresh = 100
+            required_value  = self.requirements.average_lux_amount_per_day
+            if max(0, required_value - thresh) > new_val: # > required_value + thresh:
+                with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators","sensors", self.sensor_file), 'w') as f:
+                    f.write(str(new_val + 2.0))
+            if required_value + thresh < new_val: # > required_value + thresh:
+                with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators","sensors", self.sensor_file), 'w') as f:
+                    f.write(str(new_val - 2.0))
+        elif msg.topic == "cuppy/sensor/moisture":
+            min_level  = self.requirements.min_humidity_level
+            max_level = self.requirements.max_humidity_level
+            if min_level > new_val:
+                with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators","sensors", self.sensor_file), 'w') as f:
+                    f.write(str(new_val + 2.0))
+            if  max_level < new_val:
+                with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators","sensors", self.sensor_file), 'w') as f:
+                    f.write(str(new_val - 2.0))
+        elif msg.topic == "cuppy/sensor/temp":
+            required_temperature  = self.requirements.target_temperature
+            thresh = 1.5 # Celsius
+            if required_temperature - thresh > new_val:
+                with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators","sensors",self.sensor_file), 'w') as f:
+                    f.write(str(new_val + 2.0))
+            if required_temperature + thresh < new_val:
+                with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators","sensors",self.sensor_file), 'w') as f:
+                    f.write(str(new_val - 2.0))
 
     @background(schedule=0)
     def run(client_id):

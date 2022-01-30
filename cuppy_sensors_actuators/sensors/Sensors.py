@@ -62,15 +62,7 @@ class MQTTSensor:
         while True and not should_stop:
             time.sleep(2)
 
-            try:
-                with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators/sensors/" + self.sensor_file), 'r') as f:
-                    try:
-                        current_value = float(f.read().strip())
-                    except:
-                        current_value = 0.0
-            except:
-                with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators/sensors/" + self.sensor_file), 'w') as f:
-                    f.write("")
+            current_value = self.read_value()
 
 
             ## Write 0 in that file if you want it to continue, 1 if you want it to stop
@@ -99,6 +91,19 @@ class MQTTSensor:
                     print("Failed to disconnect, return code %d\n", rc)
             self.mqtt_client.mqtt_client.on_disconnect = on_disconnect
         self.mqtt_client.mqtt_client.disconnect()
+
+    def read_value(self):
+        current_value = 0.0;
+        try:
+            with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators","sensors", self.sensor_file), 'r') as f:
+                try:
+                    current_value = float(f.read().strip())
+                except:
+                    current_value = 0.0
+        except:
+            with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators","sensors", self.sensor_file), 'w') as f:
+                f.write("")
+        return current_value
 
 
     @background(schedule=0)

@@ -116,10 +116,10 @@ class StartStopSensors(APIView):
         },
     )
     def get(self, request, format=None):
-        if request.query_params["method"].lower() == "start":
+        if "method" in request.query_params and request.query_params["method"].lower() == "start" :
             start_all_sensors()
             return Response(status=200)
-        if request.query_params["method"].lower() == "stop":
+        if "method" in request.query_params and request.query_params["method"].lower() == "stop":
             stop_all_sensors()
             return Response(status=200)
 
@@ -152,10 +152,10 @@ class StartStopCentralSubscriber(APIView):
         },
     )
     def get(self, request, format=None):
-        if request.query_params["method"].lower() == "start":
+        if "method" in request.query_params and  request.query_params["method"].lower() == "start":
             start_subscriber()
             return Response(status=200)
-        if request.query_params["method"].lower() == "stop":
+        if "method" in request.query_params and  request.query_params["method"].lower() == "stop":
             stop_subscriber()
             return Response(status=200)
 
@@ -192,10 +192,10 @@ class StartStopActuators(APIView):
         },
     )
     def get(self, request, format=None):
-        if request.query_params["method"].lower() == "start":
+        if "method" in request.query_params and  request.query_params["method"].lower() == "start":
             start_all_actuators()
             return Response(status=200)
-        if request.query_params["method"].lower() == "stop":
+        if "method" in request.query_params and  request.query_params["method"].lower() == "stop":
             stop_all_actuators()
             return Response(status=200)
 
