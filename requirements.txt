@@ -1,4 +1,4 @@
-django
+django==3.2.9
 markdown
 djangorestframework
 django-filter

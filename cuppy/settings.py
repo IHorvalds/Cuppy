@@ -42,18 +42,19 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "drf_yasg",
     "rest_framework",
+    "rest_framework.authtoken",
     "background_task",
 ]
 
 ## MQTT Settings
-MQTT_BROKER_URL = "mqtt.eclipseprojects.io"
-MQTT_PORT = 1883
+MQTT_BROKER_URL = "taylorlab.go.ro"
+MQTT_PORT = 23116
 MQTT_TOPICS = [
     "cuppy/sensor/temp",
     "cuppy/sensor/moisture",
     "cuppy/sensor/lux",
 ]  # Not used.
-MQTT_DEBUG_PRINTS = False
+MQTT_DEBUG_PRINTS = True
 
 MAX_ATTEMPTS = 10
 BACKGROUND_TASK_RUN_ASYNC = True
