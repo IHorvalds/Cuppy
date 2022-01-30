@@ -7,7 +7,7 @@ from background_task import background
 
 """Background tasks.
 
-The sensors and actuators and everythign related to mqtt, need to be run in parallel
+The sensors and actuators and everything related to mqtt, need to be run in parallel
 and as far away from the WSGI side of things as possible.
 
 See django-background-tasks https://django-background-tasks.readthedocs.io/en/latest/
@@ -65,6 +65,15 @@ class MQTTActuator:
         self.mqtt_client.mqtt_client.on_connect = on_connect
         self.mqtt_client.mqtt_client.connect(MQTT_BROKER_URL, MQTT_PORT)
 
+    def alert_topic(self, topic, curr, min_val, max_val):
+        if curr < min_val or curr > max_val:
+            result = self.mqtt_client.mqtt_client.publish(topic, curr)
+            status = result[0]
+            if status == 0:
+                print(f"Sent alert `{curr}` to topic `{topic}`")
+            else:
+                print(f"Failed to send message to topic {topic}")
+
     def subscribe(self):
         def on_message(msg_client, userdata, msg):
             # TODO: Update models here.
@@ -89,20 +98,30 @@ class MQTTActuator:
                 if required_value + thresh < new_val: # > required_value + thresh:
                     with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators/sensors/" + self.sensor_file), 'w') as f:
                         f.write(str(new_val - 2.0))
+
+                min_val = max(0, required_value - thresh)
+                max_val = required_value + thresh
+                self.alert_topic("cuppy/alert/lux", new_val, min_val, max_val)
+
             elif msg.topic == "cuppy/sensor/moisture":
                 min_level  = self.requirements.min_humidity_level
                 max_level = self.requirements.max_humidity_level
                 if min_level > new_val:
                     with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators/sensors/" + self.sensor_file), 'w') as f:
                         f.write(str(new_val + 2.0))
-                if  max_level < new_val:
+                if max_level < new_val:
                     with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators/sensors/" + self.sensor_file), 'w') as f:
                         f.write(str(new_val - 2.0))
+
+                min_val = min_level
+                max_val = max_level
+                self.alert_topic("cuppy/alert/moisture", new_val, min_val, max_val)
+
             elif msg.topic == "cuppy/sensor/temp":
                 required_temperature  = self.requirements.target_temperature
                 thresh = 1.5 # Celsius
                 print(required_temperature, thresh, new_val)
-                print("asdhagsbdhabskjhbaskjhbajkshbaksjhbasdjkhbaskdhbasdkjhbasdkjhbasdkjhbasdkjhbasd")
+
                 if required_temperature - thresh > new_val:
                     with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators/sensors/" + self.sensor_file), 'w') as f:
                         f.write(str(new_val + 2.0))
@@ -110,8 +129,9 @@ class MQTTActuator:
                     with open(os.path.join(BASE_DIR, "cuppy_sensors_actuators/sensors/" + self.sensor_file), 'w') as f:
                         f.write(str(new_val - 2.0))
 
-            
-
+                min_val = max(0, required_temperature - thresh)
+                max_val = required_temperature + thresh
+                self.alert_topic("cuppy/alert/temp", new_val, min_val, max_val)
 
         self.mqtt_client.mqtt_client.subscribe(self.mqtt_client.topic)
 
