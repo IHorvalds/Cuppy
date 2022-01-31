@@ -205,3 +205,208 @@ class StartStopActuators(APIView):
                 "error": "Issue with application. Please review views.py > class StartStopActuators!"
             },
         )
+
+
+class InitializePlant(APIView):
+    """
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+    
+    requirements = Requirement.objects.all()
+    plant_species = list(map(lambda plant: plant.plant_species, requirements))
+    @swagger_auto_schema(
+        # operation_description="apiview post description override",
+        manual_parameters=[
+            openapi.Parameter(
+                "plant",
+                openapi.IN_QUERY,
+                description="Plant name",
+                type=openapi.TYPE_STRING,
+                enum=plant_species,
+                required=True,
+            ),
+            openapi.Parameter(
+                "target_temperature",
+                openapi.IN_QUERY,
+                description="Target temperature",
+                type=openapi.TYPE_STRING,
+                required=False,
+            ),
+            openapi.Parameter(
+                "average_lux_amount_per_day",
+                openapi.IN_QUERY,
+                description="Average lux amount per day",
+                type=openapi.TYPE_STRING,
+                required=False,
+            ),
+            openapi.Parameter(
+                "min_humidity",
+                openapi.IN_QUERY,
+                description="Minimum humidity",
+                type=openapi.TYPE_STRING,
+                required=False,
+            ),
+            openapi.Parameter(
+                "max_humidity",
+                openapi.IN_QUERY,
+                description="Maximum humidity",
+                type=openapi.TYPE_STRING,
+                required=False,
+            ),
+        ],
+        responses={
+            # 200,
+            500: "Issue with application."
+        },
+    )
+    def get(self, request, format=None):
+        plant_species_id = ""
+        original_requirements = []
+        custom_max_humidity = ""
+        custom_min_humidity = ""
+        custom_target_temperature = ""
+        custom_average_lux_amount_per_day = ""
+        create_new_requirements = False
+
+        try:
+            plant_species_id = request.query_params["plant"]
+            original_requirements = Requirement.objects.filter(plant_species=plant_species_id)[0]
+        except:
+            return Response(
+                status=500,
+                data={"error": "Please select the plant species."},
+            )
+        try:        
+            custom_max_humidity = request.query_params["max_humidity"]
+            create_new_requirements = True
+        except:
+            custom_max_humidity = original_requirements.max_humidity_level
+
+
+        try:
+            custom_min_humidity = request.query_params["min_humidity"]
+            create_new_requirements = True
+        except:
+            custom_min_humidity = original_requirements.min_humidity_level
+
+
+        try:
+            custom_target_temperature = request.query_params["target_temperature"]
+            create_new_requirements = True
+        except:
+            custom_target_temperature = original_requirements.target_temperature
+
+
+        try:            
+            custom_average_lux_amount_per_day = request.query_params["average_lux_amount_per_day"]
+            create_new_requirements = True
+        except:
+            custom_average_lux_amount_per_day = original_requirements.average_lux_amount_per_day
+
+        if not(create_new_requirements):
+            p = Plant(current_humidity = 0, current_temperature = 0, current_lux = 0, plant_species_id = plant_species_id)
+            p.save()
+            return Response(status=200)
+        else:
+            requirements = Requirement.objects.all()
+            last_custom_id = ""
+            for r in requirements:
+                if(plant_species_id  + "_custom" in r.plant_species):
+                    if last_custom_id == "" or last_custom_id < r.plant_species:
+                        last_custom_id = r.plant_species
+            newPlantId = ""
+            if last_custom_id == "":
+                newPlantId = plant_species_id  + "_custom1"
+            else:
+                newPlantId = plant_species_id  + "_custom" + str(int(last_custom_id[last_custom_id.index("custom")+6:]) + 1)
+
+            r = Requirement(
+                plant_species=newPlantId,
+                target_temperature = custom_target_temperature,
+                min_humidity_level = custom_min_humidity,
+                max_humidity_level = custom_max_humidity,
+                average_lux_amount_per_day = custom_average_lux_amount_per_day
+            )
+            r.save()
+
+            p = Plant(current_humidity = 0, current_temperature = 0, current_lux = 0, plant_species_id = newPlantId)
+            p.save()
+            return Response(status=200)
+
+        return Response(status=200)
+    
+        
+
+class InitializePlantCustom(APIView):
+    """
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+    
+    requirements = Requirement.objects.all()
+    plant_species = list(map(lambda plant: plant.plant_species, requirements))
+    @swagger_auto_schema(
+        # operation_description="apiview post description override",
+        manual_parameters=[
+            openapi.Parameter(
+                "plant",
+                openapi.IN_QUERY,
+                description="Plant name",
+                type=openapi.TYPE_STRING,
+                required=True,
+            ),
+            openapi.Parameter(
+                "target_temperature",
+                openapi.IN_QUERY,
+                description="Target temperature",
+                type=openapi.TYPE_STRING,
+                required=True,
+            ),
+            openapi.Parameter(
+                "average_lux_amount_per_day",
+                openapi.IN_QUERY,
+                description="Average lux amount per day",
+                type=openapi.TYPE_STRING,
+                required=True,
+            ),
+            openapi.Parameter(
+                "min_humidity",
+                openapi.IN_QUERY,
+                description="Minimum humidity",
+                type=openapi.TYPE_STRING,
+                required=True,
+            ),
+            openapi.Parameter(
+                "max_humidity",
+                openapi.IN_QUERY,
+                description="Maximum humidity",
+                type=openapi.TYPE_STRING,
+                required=True,
+            ),
+        ],
+        responses={
+            # 200,
+            500: "Issue with application."
+        },
+    )
+    def get(self, request, format=None):
+        plant_species = request.query_params["plant"]
+        custom_max_humidity = request.query_params["max_humidity"]
+        custom_min_humidity = request.query_params["min_humidity"]
+        custom_target_temperature = request.query_params["target_temperature"]  
+        custom_average_lux_amount_per_day = request.query_params["average_lux_amount_per_day"]
+
+        r = Requirement(
+            plant_species = plant_species,
+            target_temperature = custom_target_temperature,
+            min_humidity_level = custom_min_humidity,
+            max_humidity_level = custom_max_humidity,
+            average_lux_amount_per_day = custom_average_lux_amount_per_day
+        )
+        r.save()
+
+        p = Plant(current_humidity = 0, current_temperature = 0, current_lux = 0, plant_species_id = plant_species)
+        p.save()
+        return Response(status=200)
+    

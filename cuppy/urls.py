@@ -50,6 +50,8 @@ urlpatterns = [
         "central_control/", views.StartStopCentralSubscriber.as_view(), name="central"
     ),
     path("actuator_control/", views.StartStopActuators.as_view(), name="actuator"),
+    path("initialize/", views.InitializePlant.as_view(), name="initialize"),
+    path("initialize_custom/", views.InitializePlantCustom.as_view(), name="initialize_custom"),
     path('api-token-auth/', token_views.obtain_auth_token),
     path("", include(router.urls)),
     re_path(
