@@ -15,16 +15,14 @@ info:
 
 servers:
   dev:
-    url: test.mosquitto.org:{port}
+    url: broker.hivemq.com:{port}
     protocol: mqtt
-    description: Test broker
+    description: Public development broker.
     variables:
       port:
-        description: Secure connection (TLS) is available through port 8883.
         default: '1883'
         enum:
           - '1883'
-          - '8883'
 
 defaultContentType: text/plain
 

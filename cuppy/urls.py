@@ -15,6 +15,8 @@ Including another URLconf
 """
 from rest_framework import routers
 from django.urls import path, re_path, include
+from django.conf.urls.static import static
+from django.conf import settings
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -67,4 +69,4 @@ urlpatterns = [
     re_path(
         r"^redoc/$", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"
     ),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
