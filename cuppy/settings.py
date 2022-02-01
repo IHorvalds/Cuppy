@@ -47,8 +47,8 @@ INSTALLED_APPS = [
 ]
 
 ## MQTT Settings
-MQTT_BROKER_URL = "taylorlab.go.ro"
-MQTT_PORT = 23116
+MQTT_BROKER_URL = "broker.hivemq.com"
+MQTT_PORT = 1883
 MQTT_TOPICS = [
     "cuppy/sensor/temp",
     "cuppy/sensor/moisture",

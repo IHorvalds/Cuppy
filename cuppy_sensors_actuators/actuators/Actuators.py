@@ -89,7 +89,7 @@ class MQTTActuator:
             except:
                 return # weird value in the sensor file???
 
-            msg_client.write_value(msg, new_val)
+            self.write_value(msg_client, msg, new_val)
 
         self.mqtt_client.mqtt_client.subscribe(self.mqtt_client.topic)
 
